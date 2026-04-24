@@ -8,8 +8,13 @@
 // 1. Xcodeで File → New → Target → Widget Extension を選択
 // 2. 「Include Configuration App Intent」のチェックを外す
 // 3. Widget Extensionの名前を「QuoteWidget」にする
-// 4. メインアプリとウィジェットで App Group を設定する
-//    （Signing & Capabilities → App Groups）
+// 4. QuoteStore（名言データ）を別ファイル QuoteStore.swift に切り出し、
+//    そのファイルを「メインアプリ」と「QuoteWidget Extension」の
+//    両方の Target Membership にチェックを入れる
+//    （ファイル右側のインスペクタ → Target Membership）
+//
+// ※ App Group の設定は不要です（QuoteStore は静的データのため、
+//   UserDefaults や共有ファイルでのデータ受け渡しを行いません）
 // ============================================
 
 // ============================================
