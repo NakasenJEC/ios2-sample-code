@@ -20,15 +20,16 @@ class MotionManager {
     var pitch: Double = 0    // 前後の傾き
     var roll: Double = 0     // 左右の傾き
     var yaw: Double = 0      // 水平方向の回転
-    var isAvailable: Bool = false
+    var isAvailable: Bool
+
+    init() {
+        // 初回 body 評価時点で正しい値を返すよう、init で同期的にセット
+        isAvailable = motionManager.isDeviceMotionAvailable
+    }
 
     func startUpdates() {
-        guard motionManager.isDeviceMotionAvailable else {
-            isAvailable = false
-            return
-        }
+        guard isAvailable else { return }
 
-        isAvailable = true
         motionManager.deviceMotionUpdateInterval = 1.0 / 60.0
 
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
