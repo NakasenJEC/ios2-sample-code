@@ -278,7 +278,9 @@ struct CombinedDemoView: View {
                             lastOffset = offset
                         }
                 )
-                .gesture(
+                // 複数のジェスチャーを「同時に」効かせるには
+                // .gesture を重ねるのではなく .simultaneousGesture を使う
+                .simultaneousGesture(
                     MagnifyGesture()
                         .onChanged { value in
                             scale = lastScale * value.magnification
@@ -287,7 +289,7 @@ struct CombinedDemoView: View {
                             lastScale = scale
                         }
                 )
-                .gesture(
+                .simultaneousGesture(
                     RotateGesture()
                         .onChanged { value in
                             angle = lastAngle + value.rotation
