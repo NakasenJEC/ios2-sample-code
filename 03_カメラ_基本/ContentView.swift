@@ -1,8 +1,17 @@
 // ============================================
 // 第3章（基本）：写真を選択・撮影して表示するアプリ
 // ============================================
-// PhotosPickerを使ってフォトライブラリから写真を選択し、
-// 画面に表示します。シミュレータでも動作します。
+// PhotosPickerを使ってフォトライブラリから写真を選択し、画面に表示します。
+// 「カメラ」ボタンで撮影もできます。
+//
+// 【動作環境】
+//   - フォトライブラリから選択：シミュレータでも動作します。
+//   - カメラ撮影：実機（iPhone / iPad）専用。シミュレータでは
+//     カメラボタンが自動的に無効化されます。
+//
+// 【注意】実機でカメラを使う場合は Info.plist に以下を追加してください：
+//   - NSCameraUsageDescription
+//     値: "撮影した写真を表示するためにカメラを使用します"
 // ============================================
 
 import SwiftUI
@@ -30,13 +39,14 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
 
-                    // カメラで撮影
+                    // カメラで撮影（シミュレータには未搭載のため自動的に無効化）
                     Button {
                         isShowingCamera = true
                     } label: {
                         Label("カメラ", systemImage: "camera")
                     }
                     .buttonStyle(.borderedProminent)
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
                 }
                 .padding()
             }
