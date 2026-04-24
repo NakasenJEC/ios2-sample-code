@@ -56,15 +56,6 @@ class LocationManager: NSObject, CLLocationManagerDelegate {
     }
 }
 
-// MARK: - 検索結果モデル
-
-struct NearbyPlace: Identifiable {
-    let id = UUID()
-    let name: String
-    let coordinate: CLLocationCoordinate2D
-    let category: String
-}
-
 // MARK: - メインビュー
 
 struct ContentView: View {
@@ -72,8 +63,15 @@ struct ContentView: View {
     @State private var cameraPosition: MapCameraPosition = .automatic
     @State private var searchResults: [MKMapItem] = []
     @State private var selectedCategory: String = "コンビニ"
+    @State private var hasInitialSearched = false
 
     let searchCategories = ["コンビニ", "カフェ", "レストラン", "駅"]
+
+    // CLLocationCoordinate2D は Equatable に準拠していないため、
+    // onChange で監視できる文字列キーを派生させる
+    private var userLocationKey: String? {
+        locationManager.userLocation.map { "\($0.latitude),\($0.longitude)" }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -105,14 +103,18 @@ struct ContentView: View {
         .onAppear {
             locationManager.requestPermission()
         }
-        .onChange(of: locationManager.userLocation) { _, newLocation in
-            if let location = newLocation {
-                cameraPosition = .region(
-                    MKCoordinateRegion(
-                        center: location,
-                        span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                    )
+        .onChange(of: userLocationKey) { _, _ in
+            guard let location = locationManager.userLocation else { return }
+            cameraPosition = .region(
+                MKCoordinateRegion(
+                    center: location,
+                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
                 )
+            )
+            // 初回の位置取得時に、選択中カテゴリで自動的に周辺検索を行う
+            if !hasInitialSearched {
+                hasInitialSearched = true
+                Task { await searchNearby(query: selectedCategory) }
             }
         }
     }
