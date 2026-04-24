@@ -83,11 +83,6 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
 
     // MARK: - 計算プロパティ
 
-    var elapsedTime: TimeInterval {
-        guard let start = startTime else { return 0 }
-        return Date().timeIntervalSince(start)
-    }
-
     var distanceInKm: Double {
         distance / 1000
     }
@@ -107,6 +102,14 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
 struct ContentView: View {
     @State private var tracker = ActivityTracker()
     @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var now: Date = .now
+
+    // 経過時間（startTime と now の差分から算出）
+    // 次の Timer tick まで now が古いままになるため、max(0, ...) でガード
+    private var elapsedTime: TimeInterval {
+        guard let start = tracker.startTime else { return 0 }
+        return max(0, now.timeIntervalSince(start))
+    }
 
     var body: some View {
         NavigationStack {
@@ -129,11 +132,9 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("活動トラッカー")
-            .onReceive(timer) { _ in
-                // タイマーの更新をトリガー（UI再描画のため）
-                if tracker.isTracking {
-                    // @Observableなので自動で更新される
-                }
+            .onReceive(timer) { date in
+                // 1秒ごとに now を更新することで、経過時間表示が再描画される
+                now = date
             }
         }
     }
@@ -142,7 +143,7 @@ struct ContentView: View {
 
     private var timerSection: some View {
         VStack(spacing: 4) {
-            Text(formatTime(tracker.elapsedTime))
+            Text(formatTime(elapsedTime))
                 .font(.system(size: 48, weight: .thin, design: .monospaced))
 
             if tracker.isTracking {
