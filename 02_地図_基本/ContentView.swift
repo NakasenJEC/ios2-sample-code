@@ -10,12 +10,20 @@ import MapKit
 
 // MARK: - データモデル
 
-struct Landmark: Identifiable {
+struct Landmark: Identifiable, Hashable {
     let id = UUID()
     let name: String
     let description: String
     let coordinate: CLLocationCoordinate2D
     let category: Category
+
+    static func == (lhs: Landmark, rhs: Landmark) -> Bool {
+        lhs.id == rhs.id
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 
     enum Category: String, CaseIterable {
         case temple = "寺社"
@@ -102,7 +110,7 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             // 地図
-            Map(position: $cameraPosition) {
+            Map(position: $cameraPosition, selection: $selectedLandmark) {
                 ForEach(filteredLandmarks) { landmark in
                     Marker(
                         landmark.name,
@@ -110,6 +118,7 @@ struct ContentView: View {
                         coordinate: landmark.coordinate
                     )
                     .tint(landmark.category.color)
+                    .tag(landmark)
                 }
             }
             .mapStyle(.standard(elevation: .realistic))
