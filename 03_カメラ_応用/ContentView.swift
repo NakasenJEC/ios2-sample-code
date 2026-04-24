@@ -11,6 +11,7 @@
 
 import SwiftUI
 import PhotosUI
+import Photos
 import CoreImage
 import CoreImage.CIFilterBuiltins
 
@@ -230,10 +231,22 @@ struct ContentView: View {
               let cgImage = context.createCGImage(output, from: ciImage.extent) else { return }
 
         let finalImage = UIImage(cgImage: cgImage)
-        UIImageWriteToSavedPhotosAlbum(finalImage, nil, nil, nil)
+        isSaving = true
 
-        saveMessage = "写真を保存しました"
-        showSaveAlert = true
+        // PHPhotoLibrary を使うと、保存の成否をコールバックで受け取れる
+        PHPhotoLibrary.shared().performChanges {
+            PHAssetChangeRequest.creationRequestForAsset(from: finalImage)
+        } completionHandler: { success, error in
+            DispatchQueue.main.async {
+                isSaving = false
+                if success {
+                    saveMessage = "写真を保存しました"
+                } else {
+                    saveMessage = "保存に失敗しました\n\(error?.localizedDescription ?? "原因不明のエラー")"
+                }
+                showSaveAlert = true
+            }
+        }
     }
 }
 
