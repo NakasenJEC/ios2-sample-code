@@ -208,7 +208,11 @@ struct ContentView: View {
         guard let outputImage = currentFilter.apply(to: ciImage, context: context) else { return }
 
         if let cgImage = context.createCGImage(outputImage, from: ciImage.extent) {
-            displayImage = Image(uiImage: UIImage(cgImage: cgImage))
+            // 元画像の scale と imageOrientation を引き継がないと
+            // EXIF回転情報が落ちて画像が上下反転して表示される
+            displayImage = Image(uiImage: UIImage(cgImage: cgImage,
+                                                  scale: uiImage.scale,
+                                                  orientation: uiImage.imageOrientation))
         }
     }
 
@@ -219,7 +223,9 @@ struct ContentView: View {
         guard let output = filter.apply(to: ciImage, context: context) else { return nil }
 
         if let cgImage = context.createCGImage(output, from: ciImage.extent) {
-            return UIImage(cgImage: cgImage)
+            return UIImage(cgImage: cgImage,
+                           scale: uiImage.scale,
+                           orientation: uiImage.imageOrientation)
         }
         return nil
     }
@@ -230,7 +236,11 @@ struct ContentView: View {
               let output = currentFilter.apply(to: ciImage, context: context),
               let cgImage = context.createCGImage(output, from: ciImage.extent) else { return }
 
-        let finalImage = UIImage(cgImage: cgImage)
+        // PHAssetChangeRequest は imageOrientation を尊重して保存するため、
+        // ここで orientation を渡しておかないと保存ファイルも上下反転する
+        let finalImage = UIImage(cgImage: cgImage,
+                                 scale: uiImage.scale,
+                                 orientation: uiImage.imageOrientation)
         isSaving = true
 
         // PHPhotoLibrary を使うと、保存の成否をコールバックで受け取れる
