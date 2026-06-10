@@ -169,6 +169,9 @@ struct MagnifyDemoView: View {
             Image(systemName: "star.fill")
                 .font(.system(size: 100))
                 .foregroundStyle(.yellow)
+                // タッチ判定を300×300の透明な領域に広げる
+                .frame(width: 300, height: 300)
+                .contentShape(Rectangle())
                 .scaleEffect(scale)
                 .gesture(
                     MagnifyGesture()
@@ -216,6 +219,9 @@ struct RotateDemoView: View {
             Image(systemName: "arrow.up")
                 .font(.system(size: 80))
                 .foregroundStyle(.red)
+                // タッチ判定を300×300の透明な領域に広げる
+                .frame(width: 300, height: 300)
+                .contentShape(Rectangle())
                 .rotationEffect(angle)
                 .gesture(
                     RotateGesture()
@@ -263,6 +269,9 @@ struct CombinedDemoView: View {
             Image(systemName: "photo.artframe")
                 .font(.system(size: 120))
                 .foregroundStyle(.indigo)
+                // タッチ判定を300×300の透明な領域に広げる
+                .frame(width: 300, height: 300)
+                .contentShape(Rectangle())
                 .scaleEffect(scale)
                 .rotationEffect(angle)
                 .offset(offset)
