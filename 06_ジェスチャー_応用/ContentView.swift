@@ -78,7 +78,7 @@ struct ContentView: View {
             if !animals.isEmpty {
                 HStack(spacing: 40) {
                     Button {
-                        if let top = animals.last {
+                        if let top = animals.first {
                             removeCard(animal: top, direction: .left)
                         }
                     } label: {
@@ -88,7 +88,7 @@ struct ContentView: View {
                     }
 
                     Button {
-                        if let top = animals.last {
+                        if let top = animals.first {
                             removeCard(animal: top, direction: .right)
                         }
                     } label: {
