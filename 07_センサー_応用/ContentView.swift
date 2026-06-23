@@ -101,14 +101,11 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
 
 struct ContentView: View {
     @State private var tracker = ActivityTracker()
-    @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State private var now: Date = .now
 
-    // 経過時間（startTime と now の差分から算出）
-    // 次の Timer tick まで now が古いままになるため、max(0, ...) でガード
-    private var elapsedTime: TimeInterval {
+    // 経過時間（startTime と 表示時刻 date の差分から算出）
+    private func elapsedTime(at date: Date) -> TimeInterval {
         guard let start = tracker.startTime else { return 0 }
-        return max(0, now.timeIntervalSince(start))
+        return max(0, date.timeIntervalSince(start))
     }
 
     var body: some View {
@@ -132,27 +129,26 @@ struct ContentView: View {
                 .padding()
             }
             .navigationTitle("活動トラッカー")
-            .onReceive(timer) { date in
-                // 1秒ごとに now を更新することで、経過時間表示が再描画される
-                now = date
-            }
         }
     }
 
     // MARK: - タイマーセクション
 
     private var timerSection: some View {
-        VStack(spacing: 4) {
-            Text(formatTime(elapsedTime))
-                .font(.system(size: 48, weight: .thin, design: .monospaced))
+        // TimelineView が1秒ごとに context.date を更新し、この中だけが再描画される
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            VStack(spacing: 4) {
+                Text(formatTime(elapsedTime(at: context.date)))
+                    .font(.system(size: 48, weight: .thin, design: .monospaced))
 
-            if tracker.isTracking {
-                Text("計測中")
-                    .font(.caption)
-                    .foregroundStyle(.green)
+                if tracker.isTracking {
+                    Text("計測中")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
             }
+            .padding()
         }
-        .padding()
     }
 
     // MARK: - 統計グリッド
