@@ -33,6 +33,7 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
     // 状態
     var isTracking: Bool = false
     var startTime: Date?
+    var endTime: Date?
 
     override init() {
         super.init()
@@ -45,6 +46,7 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
     func startTracking() {
         isTracking = true
         startTime = Date()
+        endTime = nil
         stepCount = 0
         distance = 0
         locations = []
@@ -69,6 +71,7 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
 
     func stopTracking() {
         isTracking = false
+        endTime = Date()
         pedometer.stopUpdates()
         locationManager.stopUpdatingLocation()
     }
@@ -102,10 +105,11 @@ class ActivityTracker: NSObject, CLLocationManagerDelegate {
 struct ContentView: View {
     @State private var tracker = ActivityTracker()
 
-    // 経過時間（startTime と 表示時刻 date の差分から算出）
+    // 経過時間（startTime からの差分。計測中は現在時刻 date、停止後は endTime で固定）
     private func elapsedTime(at date: Date) -> TimeInterval {
         guard let start = tracker.startTime else { return 0 }
-        return max(0, date.timeIntervalSince(start))
+        let end = tracker.endTime ?? date
+        return max(0, end.timeIntervalSince(start))
     }
 
     var body: some View {
