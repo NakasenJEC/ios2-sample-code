@@ -7,13 +7,24 @@
 // 【セットアップ手順】
 // 1. Xcodeで File → New → Target → Widget Extension を選択
 // 2. 「Include Configuration App Intent」のチェックを外す
-// 3. Widget Extensionの名前を「QuoteWidget」にする
-// 4. QuoteStore（名言データ）を別ファイル QuoteStore.swift に切り出し、
-//    そのファイルを「メインアプリ」と「QuoteWidget Extension」の
-//    両方の Target Membership にチェックを入れる
-//    （ファイル右側のインスペクタ → Target Membership）
+// 3. Widget Extension の名前を「QuoteWidget」にする
+// 4. データ型を共有する（Quote と QuoteStore の "両方"）：
+//    ・新規ファイル QuoteStore.swift を作り、Quote 構造体と QuoteStore 構造体の
+//      両方をそこに移す（ウィジェット側は Quote 型も使うため、片方だけでは
+//      「Cannot find 'Quote' in scope」になる）
+//    ・この ContentView.swift 側からは Quote と QuoteStore の定義を削除する
+//      （両方に同じ定義が残ると「Invalid redeclaration」になる）
+//    ・QuoteStore.swift を選び、右側インスペクタの Target Membership で
+//      「メインアプリ」と「QuoteWidget Extension」の両方にチェックを入れる
+// 5. ウィジェット本体を置き換える：
+//    拡張を作ると自動生成される QuoteWidget.swift には、すでに @main の付いた
+//    WidgetBundle と Widget が入っている。その中身を「すべて削除」してから、
+//    このファイル末尾の「ウィジェット側のコード」を貼り付ける
+//    （先頭と末尾の /* */ は外す）
+//    ・中身を残したまま貼ると @main が二重になり
+//      「'main' attribute can only apply to one type」エラーになる
 //
-// ※ App Group の設定は不要です（QuoteStore は静的データのため、
+// ※ App Group の設定は不要です（Quote / QuoteStore は静的データのため、
 //   UserDefaults や共有ファイルでのデータ受け渡しを行いません）
 // ============================================
 
@@ -104,11 +115,11 @@ struct ContentView: View {
 
 
 // ============================================
-// ■ ウィジェット側のコード（QuoteWidget.swift）
+// ■ ウィジェット側のコード（自動生成された QuoteWidget.swift を "全置換"）
 // ============================================
-// ※ Widget Extension ターゲット内のファイルに記述します。
-// ※ QuoteStore は共有ファイルとして両ターゲットに追加するか、
-//    同じコードをウィジェット側にもコピーしてください。
+// ※ 下の /* ... */ を外し、自動生成ファイルの中身を全部消してから貼り付けます。
+// ※ Quote と QuoteStore は手順4で QuoteStore.swift に移し、両ターゲットの
+//    Target Membership に入れてあるので、ここでは再定義しません。
 // ============================================
 
 /*
