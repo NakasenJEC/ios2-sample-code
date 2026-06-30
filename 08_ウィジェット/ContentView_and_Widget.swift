@@ -4,11 +4,25 @@
 // 今日の名言をホーム画面に表示するウィジェットです。
 // メインアプリとウィジェットの両方のコードを含みます。
 //
-// 【セットアップ手順】
-// 1. Xcodeで File → New → Target → Widget Extension を選択
-// 2. 「Include Configuration App Intent」のチェックを外す
-// 3. Widget Extension の名前を「QuoteWidget」にする
-// 4. データ型を共有する（Quote と QuoteStore の "両方"）：
+// 【セットアップ手順】※最新のXcodeのウィジェットテンプレートに対応
+//
+// 1. Xcodeで File → New → Target → Widget Extension を選ぶ
+//    ・名前（Product Name）は「QuoteWidget」にする
+//    ・「Include Live Activity」と「Include Configuration App Intent」は
+//      どちらもチェックを外す（後で消すファイルが減る。外せなくても手順2で消すのでOK）
+//
+// 2. 追加すると、プロジェクトに「QuoteWidget」フォルダができ、中に複数の
+//    Swift ファイルが自動生成される。今回の名言ウィジェットに必要なのは
+//    QuoteWidget.swift の 1本だけ。残りの QuoteWidget〜.swift は全部削除する
+//    （ファイルを選び 右クリック → Delete → 「Move to Trash」）。
+//    消す対象の例（生成された分だけ）：
+//      ・QuoteWidgetBundle.swift      … @main が入っている「入口」。複数ウィジェットを
+//                                        束ねる役割だが、今回はウィジェット1個なので不要
+//      ・QuoteWidgetControl.swift     … コントロールセンター用ウィジェット（不要）
+//      ・QuoteWidgetLiveActivity.swift … ライブアクティビティ用（生成された場合のみ）
+//    → QuoteWidget フォルダに残す Swift ファイルは QuoteWidget.swift だけ、が目印。
+//
+// 3. データ型を共有する（Quote と QuoteStore の "両方"）：
 //    ・新規ファイル QuoteStore.swift を作り、Quote 構造体と QuoteStore 構造体の
 //      両方をそこに移す（ウィジェット側は Quote 型も使うため、片方だけでは
 //      「Cannot find 'Quote' in scope」になる）
@@ -16,12 +30,15 @@
 //      （両方に同じ定義が残ると「Invalid redeclaration」になる）
 //    ・QuoteStore.swift を選び、右側インスペクタの Target Membership で
 //      「メインアプリ」と「QuoteWidget Extension」の両方にチェックを入れる
-// 5. ウィジェット本体を置き換える：
-//    拡張を作ると自動生成される QuoteWidget.swift には、すでに @main の付いた
-//    WidgetBundle と Widget が入っている。その中身を「すべて削除」してから、
-//    このファイル末尾の「ウィジェット側のコード」を貼り付ける
-//    （先頭と末尾の /* */ は外す）
-//    ・中身を残したまま貼ると @main が二重になり
+//
+// 4. ウィジェット本体を置き換える：
+//    ・手順2で残した QuoteWidget.swift を開き、中身を「すべて削除」してから、
+//      このファイル末尾の「ウィジェット側のコード」を貼り付ける
+//      （先頭と末尾の /* */ は外す）
+//    ・貼り付けるコードには @main の付いた QuoteWidget が入っている。手順2で
+//      @main を持つ QuoteWidgetBundle.swift を削除済みなので、これがエクステン
+//      ションで唯一の @main になる
+//    ・QuoteWidgetBundle.swift を消し忘れると @main が二重になり
 //      「'main' attribute can only apply to one type」エラーになる
 //
 // ※ App Group の設定は不要です（Quote / QuoteStore は静的データのため、
@@ -118,7 +135,7 @@ struct ContentView: View {
 // ■ ウィジェット側のコード（自動生成された QuoteWidget.swift を "全置換"）
 // ============================================
 // ※ 下の /* ... */ を外し、自動生成ファイルの中身を全部消してから貼り付けます。
-// ※ Quote と QuoteStore は手順4で QuoteStore.swift に移し、両ターゲットの
+// ※ Quote と QuoteStore は手順3で QuoteStore.swift に移し、両ターゲットの
 //    Target Membership に入れてあるので、ここでは再定義しません。
 // ============================================
 
